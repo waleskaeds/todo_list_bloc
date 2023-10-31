@@ -5,9 +5,9 @@ class TarefaRepository {
 
   Future<List<TarefaModel>> getTarefas() async {
     _tarefas.addAll([
-      TarefaModel(nome: 'Compras'),
-      TarefaModel(nome: 'Aula'),
-      TarefaModel(nome: 'Exercícios')
+      TarefaModel(nome: 'Compras na farmácia'),
+      TarefaModel(nome: 'Aula de inglês'),
+      TarefaModel(nome: 'Exercícios físicos')
     ]);
     return Future.delayed(
       const Duration(seconds: 2),

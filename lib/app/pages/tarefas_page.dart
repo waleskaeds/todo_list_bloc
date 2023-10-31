@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo_list/app/data/bloc/tarefa_bloc.dart';
 import 'package:todo_list/app/data/bloc/tarefa_event.dart';
 import 'package:todo_list/app/data/bloc/tarefa_state.dart';
@@ -18,13 +19,13 @@ class _TarefasPageState extends State<TarefasPage> {
   void initState() {
     super.initState();
     _tarefa = TarefaBloc();
-    _tarefa.inputTarefa.add(GetTarefa());
+    _tarefa.add(GetTarefa());
   }
 
   @override
   void dispose() {
     super.dispose();
-    _tarefa.inputTarefa.close();
+    _tarefa.close();
   }
 
   @override
@@ -33,26 +34,28 @@ class _TarefasPageState extends State<TarefasPage> {
       appBar: AppBar(
         title: const Text('Lista de Tarefas'),
       ),
-      body: StreamBuilder<TarefaState>(
-        stream: _tarefa.outputTarefa,
+      body: BlocBuilder<TarefaBloc, TarefaState>(
+        bloc: _tarefa,
         builder: (context, state) {
-          if(state.data is TarefaLoadingState){
+          if(state is TarefaLoadingState){
             return const LinearProgressIndicator();
           }
-          if(state.data is TarefaLoadedState){
-            final list = state.data?.tarefas ?? [];
-            return ListView.separated(
-              separatorBuilder: (context, index) => const Divider(), 
+          if(state is TarefaLoadedState){
+            final list = state.tarefas;
+            return ListView.builder(
+              physics: const BouncingScrollPhysics(),
               itemCount: list.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(list[index].nome),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () {
-                      _tarefa.inputTarefa.add(
-                          DeleteTarefa(tarefa: list[index]));
-                    }, 
+                return Card(
+                  child: ListTile(
+                    title: Text(list[index].nome),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () {
+                        _tarefa.add(
+                            DeleteTarefa(tarefa: list[index]));
+                      }, 
+                    ),
                   ),
                 );
               }, 
@@ -64,8 +67,8 @@ class _TarefasPageState extends State<TarefasPage> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: (){
-          _tarefa.inputTarefa.add(
-              PostTarefa(tarefa: TarefaModel(nome: 'nome')));
+          _tarefa.add(
+              PostTarefa(tarefa: TarefaModel(nome: 'Arrumar a casa')));
         }
       ),
     );
